@@ -2,7 +2,7 @@ import { useQuery } from "react-query";
 import { IGetMoviesResult, getMovies } from "../api";
 import styled from "styled-components";
 import { makeImagePath } from "../utils";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, delay, motion } from "framer-motion";
 import { useState } from "react";
 
 const Wrapper = styled.div`
@@ -44,27 +44,52 @@ const Slider = styled.div`
 const Row = styled(motion.div)`
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
+  gap: 5px;
   position: absolute;
   width: 100%;
 `;
 
-const Box = styled(motion.div)`
+const Box = styled(motion.div)<{ bgPhoto: string }>`
   background-color: white;
+  background-image: url(${(props) => props.bgPhoto});
+  background-size: cover;
+  background-position: center center;
   height: 200px;
   color: red;
   font-size: 66px;
+  &:first-child {
+    transform-origin: center left;
+  }
+  &:last-child {
+    transform-origin: center right;
+  }
 `;
 
 const rowVariants = {
   hidden: {
-    x: window.outerWidth + 10,
+    x: window.outerWidth + 5,
   },
   visible: { x: 0 },
   exit: {
-    x: -window.outerWidth - 10,
+    x: -window.outerWidth - 5,
   },
 };
+const BoxVariants = {
+  normal: {
+    scale: 1,
+  },
+  hover: {
+    scale: 1.3,
+    y: -50,
+    transition: {
+      delay: 0.5,
+      duration: 0.3,
+      type: "tween",
+    },
+  },
+};
+
+const offset = 6;
 
 function Home() {
   const { data, isLoading } = useQuery<IGetMoviesResult>(
@@ -73,7 +98,17 @@ function Home() {
   );
 
   const [index, setIndex] = useState(0);
-  const increaseIndex = () => setIndex((prev) => prev + 1);
+  const increaseIndex = () => {
+    if (data) {
+      const totalMovies = data?.results.length - 1;
+      const maxIndex = Math.floor(totalMovies / offset) - 1;
+      if (leaving) return;
+      toggleLeaving();
+      setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+    }
+  };
+  const [leaving, setLeaving] = useState(false);
+  const toggleLeaving = () => setLeaving((prev) => !prev);
   return (
     <Wrapper>
       {isLoading ? (
@@ -88,7 +123,7 @@ function Home() {
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
           <Slider>
-            <AnimatePresence>
+            <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
               <Row
                 key={index}
                 variants={rowVariants}
@@ -97,9 +132,19 @@ function Home() {
                 exit="exit"
                 transition={{ type: "tween", duration: 1 }}
               >
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <Box key={i}>{i}</Box>
-                ))}
+                {data?.results
+                  .slice(1)
+                  .slice(offset * index, offset * index + offset)
+                  .map((movie) => (
+                    <Box
+                      variants={BoxVariants}
+                      initial="normal"
+                      whileHover={"hover"}
+                      transition={{ type: "tween" }}
+                      key={movie.id}
+                      bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
+                    ></Box>
+                  ))}
               </Row>
             </AnimatePresence>
           </Slider>
