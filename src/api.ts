@@ -45,3 +45,4 @@ export function getMovies() {
     getOptions
   ).then((response) => response.json());
 }
+//TODO Get movie Detail, trailer

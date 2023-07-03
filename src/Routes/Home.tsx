@@ -2,8 +2,9 @@ import { useQuery } from "react-query";
 import { IGetMoviesResult, getMovies } from "../api";
 import styled from "styled-components";
 import { makeImagePath } from "../utils";
-import { AnimatePresence, delay, motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
+import { useMatch, useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
   background: black;
@@ -55,14 +56,72 @@ const Box = styled(motion.div)<{ bgPhoto: string }>`
   background-size: cover;
   background-position: center center;
   height: 200px;
-  color: red;
   font-size: 66px;
+  cursor: pointer;
   &:first-child {
     transform-origin: center left;
   }
   &:last-child {
     transform-origin: center right;
   }
+`;
+
+const Info = styled(motion.div)`
+  padding: 10px;
+  background-color: ${(props) => props.theme.black.lighter};
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  h4 {
+    text-align: center;
+    font-size: 18px;
+  }
+`;
+
+const Detail = styled(motion.div)`
+  position: fixed;
+  min-width: 850px;
+  width: 70vw;
+  height: 90vh;
+  top: 25px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: ${(props) => props.theme.black.lighter};
+`;
+
+const Overlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+`;
+
+const DetailCover = styled(motion.div)`
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background-size: cover;
+  background-position: center center;
+`;
+
+const DetailText = styled.p`
+  position: relative;
+  top: -80px;
+  padding: 10px;
+  color: ${(props) => props.theme.white.lighter};
+`;
+
+const DetailTitle = styled(DetailText)`
+  font-size: 28px;
+`;
+const DetailOverview = styled(DetailText)`
+  background-color: ${(props) => props.theme.black.lighter};
 `;
 
 const rowVariants = {
@@ -83,7 +142,18 @@ const BoxVariants = {
     y: -50,
     transition: {
       delay: 0.5,
-      duration: 0.3,
+      duration: 0.2,
+      type: "tween",
+    },
+  },
+};
+
+const InfoVariants = {
+  hover: {
+    opacity: 1,
+    transition: {
+      delay: 0.5,
+      duration: 0.2,
       type: "tween",
     },
   },
@@ -92,6 +162,8 @@ const BoxVariants = {
 const offset = 6;
 
 function Home() {
+  const navigate = useNavigate();
+  const bigMovieMatch = useMatch("/movies/:movieId");
   const { data, isLoading } = useQuery<IGetMoviesResult>(
     ["movies", "nowPlaying"],
     getMovies
@@ -109,6 +181,15 @@ function Home() {
   };
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => setLeaving((prev) => !prev);
+  const onBoxClicked = (movieId: number) => {
+    navigate(`/movies/${movieId}`);
+  };
+  const onOverlayClick = () => navigate(-1);
+  const clickedMovie =
+    bigMovieMatch?.params.movieId &&
+    data?.results.find(
+      (movie) => movie.id + "" === bigMovieMatch.params.movieId
+    );
   return (
     <Wrapper>
       {isLoading ? (
@@ -137,17 +218,50 @@ function Home() {
                   .slice(offset * index, offset * index + offset)
                   .map((movie) => (
                     <Box
+                      layoutId={movie.id + ""}
                       variants={BoxVariants}
                       initial="normal"
                       whileHover={"hover"}
                       transition={{ type: "tween" }}
                       key={movie.id}
+                      onClick={() => onBoxClicked(movie.id)}
                       bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
-                    ></Box>
+                    >
+                      <Info variants={InfoVariants}>
+                        <h4>{movie.title}</h4>
+                      </Info>
+                    </Box>
                   ))}
               </Row>
             </AnimatePresence>
           </Slider>
+          <AnimatePresence>
+            {bigMovieMatch ? (
+              <>
+                <Overlay
+                  onClick={onOverlayClick}
+                  exit={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                />
+                <Detail layoutId={bigMovieMatch.params.movieId}>
+                  {clickedMovie && (
+                    <>
+                      <DetailCover
+                        style={{
+                          backgroundImage: `linear-gradient(to top,black,transparent),url(${makeImagePath(
+                            clickedMovie.backdrop_path,
+                            "w500"
+                          )})`,
+                        }}
+                      />
+                      <DetailTitle>{clickedMovie.title}</DetailTitle>
+                      <DetailOverview>{clickedMovie.overview}</DetailOverview>
+                    </>
+                  )}
+                </Detail>
+              </>
+            ) : null}
+          </AnimatePresence>
         </>
       )}
     </Wrapper>
