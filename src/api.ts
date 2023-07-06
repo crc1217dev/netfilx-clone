@@ -8,41 +8,28 @@ const getOptions = {
     Authorization: `Bearer ${token_key}`,
   },
 };
-
-export interface IGetMoviesResult {
-  dates: Dates;
-  page: number;
-  results: IMovie[];
-  total_pages: number;
-  total_results: number;
-}
-
-export interface Dates {
-  maximum: string;
-  minimum: string;
-}
-
-export interface IMovie {
-  adult: boolean;
-  backdrop_path: string;
-  genre_ids: number[];
-  id: number;
-  original_language: string;
-  original_title: string;
-  overview: string;
-  popularity: number;
-  poster_path: string;
-  release_date: string;
-  title: string;
-  video: boolean;
-  vote_average: number;
-  vote_count: number;
-}
-
-export function getMovies() {
+export function getMovies(language: string = "en-US") {
   return fetch(
-    `${BASE_PATH}/movie/now_playing?language=en-US&page=1`,
+    `${BASE_PATH}/movie/now_playing?language=${language}&page=1`,
     getOptions
   ).then((response) => response.json());
 }
-//TODO Get movie Detail, trailer
+export async function getMovieDetail(
+  language: string = "en-US",
+  movieId: string
+) {
+  const response = await fetch(
+    `${BASE_PATH}/movie/${movieId}?language=${language}`,
+    getOptions
+  );
+  return await response.json();
+}
+export async function getMovieTrailers(language: string = "en-US", id: string) {
+  const response = await fetch(
+    `${BASE_PATH}/movie/${id}/videos?language=${language}`,
+    getOptions
+  );
+  return await response.json();
+}
+
+//TODO Get movie Detail, trailer 한글 변환 필요

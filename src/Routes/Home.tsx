@@ -1,10 +1,12 @@
 import { useQuery } from "react-query";
-import { IGetMoviesResult, getMovies } from "../api";
+import { IGetMoviesResult } from "../interface";
+import { getMovies } from "../api";
 import styled from "styled-components";
 import { makeImagePath } from "../utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { useMatch, useNavigate } from "react-router-dom";
+import MovieDetail from "../Components/MovieDetail";
 
 const Wrapper = styled.div`
   background: black;
@@ -51,10 +53,10 @@ const Row = styled(motion.div)`
 `;
 
 const Box = styled(motion.div)<{ bgPhoto: string }>`
-  background-color: white;
-  background-image: url(${(props) => props.bgPhoto});
+  background-color: black;
   background-size: cover;
   background-position: center center;
+  background-image: url(${(props) => props.bgPhoto});
   height: 200px;
   font-size: 66px;
   cursor: pointer;
@@ -77,51 +79,6 @@ const Info = styled(motion.div)`
     text-align: center;
     font-size: 18px;
   }
-`;
-
-const Detail = styled(motion.div)`
-  position: fixed;
-  min-width: 850px;
-  width: 70vw;
-  height: 90vh;
-  top: 25px;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  border-radius: 15px;
-  overflow: hidden;
-  background-color: ${(props) => props.theme.black.lighter};
-`;
-
-const Overlay = styled(motion.div)`
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  opacity: 0;
-`;
-
-const DetailCover = styled(motion.div)`
-  position: relative;
-  width: 100%;
-  height: 400px;
-  background-size: cover;
-  background-position: center center;
-`;
-
-const DetailText = styled.p`
-  position: relative;
-  top: -80px;
-  padding: 10px;
-  color: ${(props) => props.theme.white.lighter};
-`;
-
-const DetailTitle = styled(DetailText)`
-  font-size: 28px;
-`;
-const DetailOverview = styled(DetailText)`
-  background-color: ${(props) => props.theme.black.lighter};
 `;
 
 const rowVariants = {
@@ -163,12 +120,11 @@ const offset = 6;
 
 function Home() {
   const navigate = useNavigate();
-  const bigMovieMatch = useMatch("/movies/:movieId");
+  const detailMovieMatch = useMatch("/movies/:movieId");
   const { data, isLoading } = useQuery<IGetMoviesResult>(
     ["movies", "nowPlaying"],
-    getMovies
+    () => getMovies()
   );
-
   const [index, setIndex] = useState(0);
   const increaseIndex = () => {
     if (data) {
@@ -184,12 +140,6 @@ function Home() {
   const onBoxClicked = (movieId: number) => {
     navigate(`/movies/${movieId}`);
   };
-  const onOverlayClick = () => navigate(-1);
-  const clickedMovie =
-    bigMovieMatch?.params.movieId &&
-    data?.results.find(
-      (movie) => movie.id + "" === bigMovieMatch.params.movieId
-    );
   return (
     <Wrapper>
       {isLoading ? (
@@ -219,11 +169,11 @@ function Home() {
                   .map((movie) => (
                     <Box
                       layoutId={movie.id + ""}
+                      key={movie.id}
                       variants={BoxVariants}
                       initial="normal"
-                      whileHover={"hover"}
+                      whileHover="hover"
                       transition={{ type: "tween" }}
-                      key={movie.id}
                       onClick={() => onBoxClicked(movie.id)}
                       bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
                     >
@@ -236,30 +186,8 @@ function Home() {
             </AnimatePresence>
           </Slider>
           <AnimatePresence>
-            {bigMovieMatch ? (
-              <>
-                <Overlay
-                  onClick={onOverlayClick}
-                  exit={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                />
-                <Detail layoutId={bigMovieMatch.params.movieId}>
-                  {clickedMovie && (
-                    <>
-                      <DetailCover
-                        style={{
-                          backgroundImage: `linear-gradient(to top,black,transparent),url(${makeImagePath(
-                            clickedMovie.backdrop_path,
-                            "w500"
-                          )})`,
-                        }}
-                      />
-                      <DetailTitle>{clickedMovie.title}</DetailTitle>
-                      <DetailOverview>{clickedMovie.overview}</DetailOverview>
-                    </>
-                  )}
-                </Detail>
-              </>
+            {detailMovieMatch ? (
+              <MovieDetail selectedId={detailMovieMatch.params.movieId || ""} />
             ) : null}
           </AnimatePresence>
         </>
