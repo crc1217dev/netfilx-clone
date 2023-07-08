@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
-import { IMovieDetail } from "../interface";
-import { getMovieDetail } from "../api";
+import { IMovieDetail, IMovieTrailer } from "../interface";
+import { getMovieDetail, getMovieTrailers } from "../api";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import { makeImagePath } from "../utils";
@@ -74,11 +74,16 @@ const ContentTitle = styled.span`
 function MovieDetail({ selectedId }: IMovieDetailProps) {
   const navigate = useNavigate();
 
-  const onOverlayClick = () => navigate(-1);
+  const onOverlayClick = () => navigate("/");
   const { data } = useQuery<IMovieDetail>(["movies", "detail"], () =>
     getMovieDetail("en-US", selectedId)
   );
-  console.log(data);
+  const trailerResult = useQuery<IMovieTrailer>(["movie", "trailer"], () =>
+    getMovieTrailers("en-US", selectedId)
+  );
+  const trailer = trailerResult.data?.results.find(
+    (trailer) => trailer.name === "Official Trailer"
+  );
   return (
     <>
       <Overlay
@@ -89,7 +94,17 @@ function MovieDetail({ selectedId }: IMovieDetailProps) {
       <Detail layoutId={selectedId}>
         {data && (
           <>
-            <Cover bgPhoto={makeImagePath(data.backdrop_path, "w500")} />
+            <Cover bgPhoto={makeImagePath(data.backdrop_path, "w500")}>
+              {trailer ? (
+                <iframe
+                  id="player"
+                  title="test"
+                  width="1344"
+                  height="400"
+                  src={`https://www.youtube.com/embed/${trailer.key}`}
+                ></iframe>
+              ) : null}
+            </Cover>
             <Contents>
               <LeftContents>
                 <Title>{data.title}</Title>
