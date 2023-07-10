@@ -39,9 +39,29 @@ const Title = styled.h2`
   margin-bottom: 20px;
 `;
 
-const Slider = styled.div`
+const Slider = styled(motion.div)`
   position: relative;
   top: -100px;
+  display: flex;
+  align-items: center;
+  height: fit-content;
+`;
+const Arrow = styled(motion.div)`
+  width: 50px;
+  height: 50px;
+  z-index: 1;
+  cursor: pointer;
+`;
+const LeftArrow = styled(Arrow)`
+  margin-right: auto;
+`;
+const RightArrow = styled(Arrow)`
+  margin-left: auto;
+`;
+const ArrowSvg = styled(motion.svg)`
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
 `;
 
 const Row = styled(motion.div)`
@@ -82,13 +102,13 @@ const Info = styled(motion.div)`
 `;
 
 const rowVariants = {
-  hidden: {
-    x: window.outerWidth + 5,
-  },
+  hidden: (isSlideBack: boolean) => ({
+    x: isSlideBack ? -window.outerWidth - 5 : window.outerWidth + 5,
+  }),
   visible: { x: 0 },
-  exit: {
-    x: -window.outerWidth - 5,
-  },
+  exit: (isSlideBack: boolean) => ({
+    x: isSlideBack ? window.outerWidth + 5 : -window.outerWidth - 5,
+  }),
 };
 const BoxVariants = {
   normal: {
@@ -96,7 +116,6 @@ const BoxVariants = {
   },
   hover: {
     scale: 1.3,
-    y: -50,
     transition: {
       delay: 0.5,
       duration: 0.2,
@@ -116,6 +135,18 @@ const InfoVariants = {
   },
 };
 
+const SliderVariants = {
+  rest: { opacity: 0, ease: "easeOut", duration: 0.2, type: "tween" },
+  hover: {
+    opacity: 1,
+    transition: {
+      duration: 0.4,
+      type: "tween",
+      ease: "easeIn",
+    },
+  },
+};
+
 const offset = 6;
 
 function Home() {
@@ -126,15 +157,32 @@ function Home() {
     () => getMovies()
   );
   const [index, setIndex] = useState(0);
-  const increaseIndex = () => {
+  const [isSlideBack, setSlideBack] = useState(false);
+  const controlSlideIndex = (type: string = "increase" || "decrease") => {
     if (data) {
       const totalMovies = data?.results.length - 1;
       const maxIndex = Math.floor(totalMovies / offset) - 1;
       if (leaving) return;
       toggleLeaving();
-      setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+      if (type === "increase") {
+        setSlideBack(false);
+        setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+      } else if (type === "decrease") {
+        console.log("decrease");
+        setSlideBack(true);
+        setIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
+      }
     }
   };
+  // const decreaseIndex = () => {
+  //   if (data) {
+  //     const totalMovies = data?.results.length - 1;
+  //     const maxIndex = Math.floor(totalMovies / offset) - 1;
+  //     if (leaving) return;
+  //     toggleLeaving();
+  //     setIndex((prev) => (prev === maxIndex ? 0 : prev - 1));
+  //   }
+  // };
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => setLeaving((prev) => !prev);
   const onBoxClicked = (movieId: number) => {
@@ -146,16 +194,47 @@ function Home() {
         <Loader>Loading...</Loader>
       ) : (
         <>
-          <Banner
-            onClick={increaseIndex}
-            bgPhoto={makeImagePath(data?.results[0].backdrop_path || "")}
-          >
+          <Banner bgPhoto={makeImagePath(data?.results[0].backdrop_path || "")}>
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
-          <Slider>
+          <Slider initial="rest" whileHover="hover">
+            {/* <LeftArrow
+              variants={SliderVariants}
+              onClick={() => controlSlideIndex("decrease")}
+            >
+              <ArrowSvg
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                />
+              </ArrowSvg>
+            </LeftArrow> */}
+
+            <RightArrow
+              variants={SliderVariants}
+              onClick={() => controlSlideIndex("increase")}
+            >
+              <ArrowSvg
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                />
+              </ArrowSvg>
+            </RightArrow>
             <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
               <Row
+                custom={isSlideBack}
                 key={index}
                 variants={rowVariants}
                 initial="hidden"
