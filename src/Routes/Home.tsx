@@ -39,13 +39,52 @@ const Title = styled.h2`
   margin-bottom: 20px;
 `;
 
-const Slider = styled(motion.div)`
+const SliderWrapper = styled(motion.div)`
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   position: relative;
   top: -100px;
+`;
+const SlideHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding-left: 15px;
+  padding-top: 5px;
+  width: 100%;
+  margin-bottom: auto;
+  z-index: 3;
+`;
+
+const SlideTitle = styled.h2`
+  color: ${(props) => props.theme.white.lighter};
+  font-size: 24px;
+`;
+
+const Slider = styled(motion.div)`
   display: flex;
   align-items: center;
-  height: fit-content;
+  width: 100%;
 `;
+const PaginationIndicator = styled(motion.ul)`
+  position: absolute;
+  z-index: 3;
+  margin-top: 34px;
+  top: 0;
+  right: 4%;
+`;
+const Indicator = styled(motion.li)`
+  display: inline-block;
+  height: 2px;
+  width: 16px;
+  margin-left: 2px;
+  background-color: rgba(128, 128, 128, 0.562);
+  &:first-child {
+    background-color: rgb(183, 180, 180, 1);
+  }
+`;
+
 const Arrow = styled(motion.div)`
   width: 50px;
   height: 50px;
@@ -100,14 +139,15 @@ const Info = styled(motion.div)`
     font-size: 18px;
   }
 `;
-
 const rowVariants = {
   hidden: (isSlideBack: boolean) => ({
-    x: isSlideBack ? -window.outerWidth - 5 : window.outerWidth + 5,
+    x: isSlideBack ? -window.outerWidth : window.outerWidth,
   }),
-  visible: { x: 0 },
+  visible: () => ({
+    x: 0,
+  }),
   exit: (isSlideBack: boolean) => ({
-    x: isSlideBack ? window.outerWidth + 5 : -window.outerWidth - 5,
+    x: isSlideBack ? window.outerWidth : -window.outerWidth,
   }),
 };
 const BoxVariants = {
@@ -158,31 +198,23 @@ function Home() {
   );
   const [index, setIndex] = useState(0);
   const [isSlideBack, setSlideBack] = useState(false);
-  const controlSlideIndex = (type: string = "increase" || "decrease") => {
+
+  //prev 동작 후 next 동작시 오류가 생겨 수정.
+  const moveSlide = async (isBack: boolean, maxIndex: number) => {
+    await setSlideBack(isBack);
+    isBack
+      ? setIndex((prev) => (prev === 0 ? maxIndex : prev - 1))
+      : setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+  };
+  const controlSlideIndex = (isSlide: boolean) => {
     if (data) {
       const totalMovies = data?.results.length - 1;
       const maxIndex = Math.floor(totalMovies / offset) - 1;
       if (leaving) return;
       toggleLeaving();
-      if (type === "increase") {
-        setSlideBack(false);
-        setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
-      } else if (type === "decrease") {
-        console.log("decrease");
-        setSlideBack(true);
-        setIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
-      }
+      moveSlide(isSlide, maxIndex);
     }
   };
-  // const decreaseIndex = () => {
-  //   if (data) {
-  //     const totalMovies = data?.results.length - 1;
-  //     const maxIndex = Math.floor(totalMovies / offset) - 1;
-  //     if (leaving) return;
-  //     toggleLeaving();
-  //     setIndex((prev) => (prev === maxIndex ? 0 : prev - 1));
-  //   }
-  // };
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => setLeaving((prev) => !prev);
   const onBoxClicked = (movieId: number) => {
@@ -198,72 +230,88 @@ function Home() {
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
-          <Slider initial="rest" whileHover="hover">
-            {/* <LeftArrow
-              variants={SliderVariants}
-              onClick={() => controlSlideIndex("decrease")}
-            >
-              <ArrowSvg
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
+          {/* Slider */}
+          <SliderWrapper>
+            <SlideHeader>
+              <SlideTitle>Popular</SlideTitle>
+              {/* indicator */}
+              <PaginationIndicator>
+                {data
+                  ? data.results
+                      .slice(
+                        data.results.length -
+                          Math.floor(data?.results.length / offset)
+                      )
+                      .map((_, index) => <Indicator key={index}></Indicator>)
+                  : null}
+              </PaginationIndicator>
+            </SlideHeader>
+            <Slider initial="rest" whileHover="hover">
+              <LeftArrow
+                variants={SliderVariants}
+                onClick={() => controlSlideIndex(true)}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5L8.25 12l7.5-7.5"
-                />
-              </ArrowSvg>
-            </LeftArrow> */}
-
-            <RightArrow
-              variants={SliderVariants}
-              onClick={() => controlSlideIndex("increase")}
-            >
-              <ArrowSvg
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
+                <ArrowSvg
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 19.5L8.25 12l7.5-7.5"
+                  />
+                </ArrowSvg>
+              </LeftArrow>
+              <RightArrow
+                variants={SliderVariants}
+                onClick={() => controlSlideIndex(false)}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                />
-              </ArrowSvg>
-            </RightArrow>
-            <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
-              <Row
-                custom={isSlideBack}
-                key={index}
-                variants={rowVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                transition={{ type: "tween", duration: 1 }}
-              >
-                {data?.results
-                  .slice(1)
-                  .slice(offset * index, offset * index + offset)
-                  .map((movie) => (
-                    <Box
-                      layoutId={movie.id + ""}
-                      key={movie.id}
-                      variants={BoxVariants}
-                      initial="normal"
-                      whileHover="hover"
-                      transition={{ type: "tween" }}
-                      onClick={() => onBoxClicked(movie.id)}
-                      bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
-                    >
-                      <Info variants={InfoVariants}>
-                        <h4>{movie.title}</h4>
-                      </Info>
-                    </Box>
-                  ))}
-              </Row>
-            </AnimatePresence>
-          </Slider>
+                <ArrowSvg
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                  />
+                </ArrowSvg>
+              </RightArrow>
+              <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+                <Row
+                  custom={isSlideBack}
+                  key={index}
+                  variants={rowVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={{ type: "tween", duration: 1 }}
+                >
+                  {data?.results
+                    .slice(1)
+                    .slice(offset * index, offset * index + offset)
+                    .map((movie) => (
+                      <Box
+                        layoutId={movie.id + ""}
+                        key={movie.id}
+                        variants={BoxVariants}
+                        initial="normal"
+                        whileHover="hover"
+                        transition={{ type: "tween" }}
+                        onClick={() => onBoxClicked(movie.id)}
+                        bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
+                      >
+                        <Info variants={InfoVariants}>
+                          <h4>{movie.title}</h4>
+                        </Info>
+                      </Box>
+                    ))}
+                </Row>
+              </AnimatePresence>
+            </Slider>
+          </SliderWrapper>
           <AnimatePresence>
             {detailMovieMatch ? (
               <MovieDetail selectedId={detailMovieMatch.params.movieId || ""} />
