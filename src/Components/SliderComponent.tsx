@@ -7,21 +7,19 @@ import { useNavigate } from "react-router-dom";
 
 interface ISliderProps {
   data: IGetMoviesResult | undefined;
+  title: string;
 }
 
 const Wrapper = styled(motion.div)`
   height: 180px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  position: relative;
-  top: -100px;
 `;
 const SlideHeader = styled.div`
   display: flex;
   justify-content: space-between;
   padding-left: 15px;
-  padding-top: 5px;
+  padding-top: 15px;
   width: 100%;
   margin-bottom: auto;
   z-index: 3;
@@ -29,7 +27,7 @@ const SlideHeader = styled.div`
 
 const SlideTitle = styled.h2`
   color: ${(props) => props.theme.white.lighter};
-  font-size: 24px;
+  font-size: 1.5rem;
 `;
 
 const SliderWrapper = styled(motion.div)`
@@ -159,7 +157,7 @@ const SliderVariants = {
 
 const offset = 6;
 
-function SliderComponent({ data }: ISliderProps) {
+function SliderComponent({ data, title }: ISliderProps) {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
   const [isSlideBack, setSlideBack] = useState(false);
@@ -188,7 +186,7 @@ function SliderComponent({ data }: ISliderProps) {
   return (
     <Wrapper>
       <SlideHeader>
-        <SlideTitle>Popular</SlideTitle>
+        <SlideTitle>{title}</SlideTitle>
         {/* indicator */}
       </SlideHeader>
       <SliderWrapper initial="rest" whileHover="hover">
@@ -234,7 +232,7 @@ function SliderComponent({ data }: ISliderProps) {
                   )
                   .map((_, arrayIndex) => (
                     <Indicator
-                      layoutId="indicator"
+                      layoutId={`${title}indicator`}
                       className={arrayIndex === index ? "selected" : ""}
                       key={arrayIndex}
                     ></Indicator>
@@ -255,7 +253,7 @@ function SliderComponent({ data }: ISliderProps) {
               .slice(offset * index, offset * index + offset)
               .map((movie) => (
                 <Box
-                  layoutId={movie.id + ""}
+                  layoutId={movie.id + title}
                   key={movie.id}
                   variants={BoxVariants}
                   initial="normal"

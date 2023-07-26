@@ -8,12 +8,25 @@ const getOptions = {
     Authorization: `Bearer ${token_key}`,
   },
 };
-export function getMovies(language: string = "en-US") {
+export function getTopRatedMovies(language: string = "en-US") {
+  return fetch(
+    `${BASE_PATH}/movie/top_rated?language=${language}&page=1`,
+    getOptions
+  ).then((response) => response.json());
+}
+export function getNowPlayMovies(language: string = "en-US") {
   return fetch(
     `${BASE_PATH}/movie/now_playing?language=${language}&page=1`,
     getOptions
   ).then((response) => response.json());
 }
+export function getUpcomingMovies(language: string = "en-US") {
+  return fetch(
+    `${BASE_PATH}/movie/upcoming?language=${language}&page=1`,
+    getOptions
+  ).then((response) => response.json());
+}
+
 export async function getMovieDetail(
   language: string = "en-US",
   movieId: string

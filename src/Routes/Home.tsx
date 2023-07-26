@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
 import { IGetMoviesResult } from "../interface";
-import { getMovies } from "../api";
+import { getNowPlayMovies, getTopRatedMovies, getUpcomingMovies } from "../api";
 import styled from "styled-components";
 import { makeImagePath } from "../utils";
 import { AnimatePresence } from "framer-motion";
@@ -39,27 +39,51 @@ const Title = styled.h2`
   margin-bottom: 20px;
 `;
 
+const MovieList = styled.div`
+  display: grid;
+  grid-template-rows: repeat(1fr);
+  position: relative;
+  gap: 80px;
+  top: -100px;
+`;
+
 function Home() {
   const detailMovieMatch = useMatch("/movies/:movieId");
-  const { data, isLoading } = useQuery<IGetMoviesResult>(
+  const topRatedMovies = useQuery<IGetMoviesResult>(
+    ["movies", "topRated"],
+    () => getTopRatedMovies()
+  );
+  const nowPlayMovies = useQuery<IGetMoviesResult>(
     ["movies", "nowPlaying"],
-    () => getMovies()
+    () => getNowPlayMovies()
+  );
+  const upComingMovies = useQuery<IGetMoviesResult>(
+    ["movies", "upComing"],
+    () => getUpcomingMovies()
   );
   //prev 동작 후 next 동작시 오류가 생겨 수정.
   return (
     <Wrapper>
-      {isLoading ? (
+      {nowPlayMovies.isLoading ? (
         <Loader>Loading...</Loader>
       ) : (
         <>
           <Banner
-            $bgPhoto={makeImagePath(data?.results[0].backdrop_path || "")}
+            $bgPhoto={makeImagePath(
+              nowPlayMovies.data?.results[0].backdrop_path || ""
+            )}
           >
-            <Title>{data?.results[0].title}</Title>
-            <Overview>{data?.results[0].overview}</Overview>
+            <Title>{nowPlayMovies.data?.results[0].title}</Title>
+            <Overview>{nowPlayMovies.data?.results[0].overview}</Overview>
           </Banner>
-          {/* Slider */}
-          <SliderComponent data={data} />
+          <MovieList>
+            {/* TopRated */}
+            <SliderComponent title="Top Rated" data={topRatedMovies.data} />
+            {/* nowPlay */}
+            <SliderComponent title="nowPlay" data={nowPlayMovies.data} />
+            {/* Upcoming */}
+            <SliderComponent title="Upcoming" data={upComingMovies.data} />
+          </MovieList>
           <AnimatePresence>
             {detailMovieMatch ? (
               <MovieDetail selectedId={detailMovieMatch.params.movieId || ""} />
