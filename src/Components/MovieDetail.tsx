@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 interface IMovieDetailProps {
   selectedId: string;
+  category: string;
 }
 
 const Detail = styled(motion.div)`
@@ -32,12 +33,12 @@ const Overlay = styled(motion.div)`
   opacity: 0;
 `;
 
-const Cover = styled(motion.div)<{ bgPhoto: string }>`
+const Cover = styled(motion.div)<{ $bgPhoto: string }>`
   position: relative;
   width: 100%;
   height: 400px;
   background-size: cover;
-  background-image: url(${(props) => props.bgPhoto});
+  background-image: url(${(props) => props.$bgPhoto});
   background-position: center center;
 `;
 
@@ -71,7 +72,7 @@ const ContentTitle = styled.span`
   color: rgba(147, 147, 147, 0.954);
 `;
 
-function MovieDetail({ selectedId }: IMovieDetailProps) {
+function MovieDetail({ selectedId, category }: IMovieDetailProps) {
   const navigate = useNavigate();
 
   const onOverlayClick = () => navigate("/");
@@ -82,7 +83,9 @@ function MovieDetail({ selectedId }: IMovieDetailProps) {
     getMovieTrailers("en-US", selectedId)
   );
   const trailer = trailerResult.data?.results.find(
-    (trailer) => trailer.name === "Official Trailer"
+    (trailer) =>
+      trailer.type === "Trailer" &&
+      (trailer.name === "Official Trailer" || trailer.name.includes("Trailer"))
   );
   return (
     <>
@@ -91,10 +94,10 @@ function MovieDetail({ selectedId }: IMovieDetailProps) {
         exit={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       />
-      <Detail layoutId={selectedId}>
+      <Detail layoutId={selectedId + category}>
         {data && (
           <>
-            <Cover bgPhoto={makeImagePath(data.backdrop_path, "w500")}>
+            <Cover $bgPhoto={makeImagePath(data.backdrop_path, "w500")}>
               {trailer ? (
                 <iframe
                   id="player"

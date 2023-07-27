@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 interface ISliderProps {
   data: IGetMoviesResult | undefined;
-  title: string;
+  category: string;
 }
 
 const Wrapper = styled(motion.div)`
@@ -36,9 +36,9 @@ const SliderWrapper = styled(motion.div)`
   width: 100%;
 `;
 const PaginationIndicator = styled(motion.ul)`
-  position: absolute;
+  position: relative;
   z-index: 3;
-  margin-top: 34px;
+  margin-top: 16px;
   top: 0;
   right: 4%;
 `;
@@ -71,9 +71,9 @@ const ArrowSvg = styled(motion.svg)`
   stroke-width: 2.5;
 `;
 
-const Row = styled(motion.div)`
+const Row = styled(motion.div)<{ offset: number }>`
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(${(props) => props.offset}, 1fr);
   gap: 5px;
   position: absolute;
   width: 100%;
@@ -154,10 +154,9 @@ const SliderVariants = {
     },
   },
 };
+const offset = 5;
 
-const offset = 6;
-
-function SliderComponent({ data, title }: ISliderProps) {
+function SliderComponent({ data, category }: ISliderProps) {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
   const [isSlideBack, setSlideBack] = useState(false);
@@ -171,8 +170,9 @@ function SliderComponent({ data, title }: ISliderProps) {
   };
   const controlSlideIndex = (isSlide: boolean) => {
     if (data) {
-      const totalMovies = data?.results.length - 1;
+      const totalMovies = data?.results.length;
       const maxIndex = Math.floor(totalMovies / offset) - 1;
+      console.log(data?.results.length, totalMovies, maxIndex);
       if (leaving) return;
       toggleLeaving();
       moveSlide(isSlide, maxIndex);
@@ -180,14 +180,31 @@ function SliderComponent({ data, title }: ISliderProps) {
   };
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => setLeaving((prev) => !prev);
-  const onBoxClicked = (movieId: number) => {
-    navigate(`/movies/${movieId}`);
+  const onBoxClicked = (movieId: number, category: string) => {
+    navigate(`/movies/${category}/${movieId}`);
   };
   return (
     <Wrapper>
       <SlideHeader>
-        <SlideTitle>{title}</SlideTitle>
-        {/* indicator */}
+        <SlideTitle>{category}</SlideTitle>
+        <AnimatePresence>
+          <PaginationIndicator>
+            {data
+              ? data.results
+                  .slice(
+                    data.results.length -
+                      Math.round(data?.results.length / offset)
+                  )
+                  .map((_, arrayIndex) => (
+                    <Indicator
+                      layoutId={`${category}indicator`}
+                      className={arrayIndex === index ? "selected" : ""}
+                      key={arrayIndex}
+                    ></Indicator>
+                  ))
+              : null}
+          </PaginationIndicator>
+        </AnimatePresence>
       </SlideHeader>
       <SliderWrapper initial="rest" whileHover="hover">
         <LeftArrow
@@ -222,24 +239,10 @@ function SliderComponent({ data, title }: ISliderProps) {
             />
           </ArrowSvg>
         </RightArrow>
+
         <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
-          <PaginationIndicator>
-            {data
-              ? data.results
-                  .slice(
-                    data.results.length -
-                      Math.floor(data?.results.length / offset)
-                  )
-                  .map((_, arrayIndex) => (
-                    <Indicator
-                      layoutId={`${title}indicator`}
-                      className={arrayIndex === index ? "selected" : ""}
-                      key={arrayIndex}
-                    ></Indicator>
-                  ))
-              : null}
-          </PaginationIndicator>
           <Row
+            offset={offset}
             custom={isSlideBack}
             key={index}
             variants={rowVariants}
@@ -249,17 +252,17 @@ function SliderComponent({ data, title }: ISliderProps) {
             transition={{ type: "tween", duration: 1 }}
           >
             {data?.results
-              .slice(1)
+              // .slice(1)
               .slice(offset * index, offset * index + offset)
               .map((movie) => (
                 <Box
-                  layoutId={movie.id + title}
+                  layoutId={movie.id + category}
                   key={movie.id}
                   variants={BoxVariants}
                   initial="normal"
                   whileHover="hover"
                   transition={{ type: "tween" }}
-                  onClick={() => onBoxClicked(movie.id)}
+                  onClick={() => onBoxClicked(movie.id, category)}
                   $bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
                 >
                   <Info variants={InfoVariants}>

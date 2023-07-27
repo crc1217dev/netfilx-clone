@@ -48,7 +48,7 @@ const MovieList = styled.div`
 `;
 
 function Home() {
-  const detailMovieMatch = useMatch("/movies/:movieId");
+  const detailMovieMatch = useMatch("/movies/:category/:movieId");
   const topRatedMovies = useQuery<IGetMoviesResult>(
     ["movies", "topRated"],
     () => getTopRatedMovies()
@@ -77,16 +77,19 @@ function Home() {
             <Overview>{nowPlayMovies.data?.results[0].overview}</Overview>
           </Banner>
           <MovieList>
-            {/* TopRated */}
-            <SliderComponent title="Top Rated" data={topRatedMovies.data} />
             {/* nowPlay */}
-            <SliderComponent title="nowPlay" data={nowPlayMovies.data} />
+            <SliderComponent category="nowPlay" data={nowPlayMovies.data} />
+            {/* TopRated */}
+            <SliderComponent category="Top Rated" data={topRatedMovies.data} />
             {/* Upcoming */}
-            <SliderComponent title="Upcoming" data={upComingMovies.data} />
+            <SliderComponent category="Upcoming" data={upComingMovies.data} />
           </MovieList>
           <AnimatePresence>
             {detailMovieMatch ? (
-              <MovieDetail selectedId={detailMovieMatch.params.movieId || ""} />
+              <MovieDetail
+                category={detailMovieMatch.params.category || ""}
+                selectedId={detailMovieMatch.params.movieId || ""}
+              />
             ) : null}
           </AnimatePresence>
         </>
