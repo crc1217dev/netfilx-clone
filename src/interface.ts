@@ -1,7 +1,7 @@
-export interface IGetMoviesResult {
+export interface IGetContentsResult {
   dates: Dates;
   page: number;
-  results: IMovie[];
+  results: IContent[];
   total_pages: number;
   total_results: number;
 }
@@ -11,7 +11,7 @@ export interface Dates {
   minimum: string;
 }
 
-export interface IMovie {
+export interface IContent {
   adult: boolean;
   backdrop_path: string;
   genre_ids: number[];
@@ -26,9 +26,11 @@ export interface IMovie {
   video: boolean;
   vote_average: number;
   vote_count: number;
+  name: string;
+  first_air_date: string;
 }
 
-export interface IMovieDetail {
+export interface IContentDetail {
   adult: boolean;
   backdrop_path: string;
   belongs_to_collection: any;
@@ -54,6 +56,8 @@ export interface IMovieDetail {
   video: boolean;
   vote_average: number;
   vote_count: number;
+  name: string;
+  first_air_date: string;
 }
 
 export interface Genre {

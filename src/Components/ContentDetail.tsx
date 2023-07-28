@@ -1,14 +1,16 @@
 import { useQuery } from "react-query";
-import { IMovieDetail, IMovieTrailer } from "../interface";
-import { getMovieDetail, getMovieTrailers } from "../api";
+import { IContentDetail, IMovieTrailer } from "../interface";
+import { getMovieDetail, getMovieTrailers } from "../api/movieApi";
 import styled from "styled-components";
 import { motion } from "framer-motion";
-import { makeImagePath } from "../utils";
+import { makeImagePath } from "../utils/utils";
 import { useNavigate } from "react-router-dom";
+import { getTvDetail, getTvTrailers } from "../api/tvApi";
 
-interface IMovieDetailProps {
+interface IContentDetailProps {
   selectedId: string;
   category: string;
+  type: "Movie" | "Tv";
 }
 
 const Detail = styled(motion.div)`
@@ -72,15 +74,20 @@ const ContentTitle = styled.span`
   color: rgba(147, 147, 147, 0.954);
 `;
 
-function MovieDetail({ selectedId, category }: IMovieDetailProps) {
+function ContentDetail({ selectedId, category, type }: IContentDetailProps) {
   const navigate = useNavigate();
 
-  const onOverlayClick = () => navigate("/");
-  const { data } = useQuery<IMovieDetail>(["movies", "detail"], () =>
-    getMovieDetail("en-US", selectedId)
+  const onOverlayClick = () =>
+    type === "Movie" ? navigate("/") : navigate("/tv");
+  const { data } = useQuery<IContentDetail>(["contents", "detail"], () =>
+    type === "Movie"
+      ? getMovieDetail("en-US", selectedId)
+      : getTvDetail("en-US", selectedId)
   );
-  const trailerResult = useQuery<IMovieTrailer>(["movie", "trailer"], () =>
-    getMovieTrailers("en-US", selectedId)
+  const trailerResult = useQuery<IMovieTrailer>(["content", "trailer"], () =>
+    type === "Movie"
+      ? getMovieTrailers("en-US", selectedId)
+      : getTvTrailers("en-US", selectedId)
   );
   const trailer = trailerResult.data?.results.find(
     (trailer) =>
@@ -145,4 +152,4 @@ function MovieDetail({ selectedId, category }: IMovieDetailProps) {
   );
 }
 
-export default MovieDetail;
+export default ContentDetail;

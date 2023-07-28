@@ -1,13 +1,14 @@
 import { motion, AnimatePresence } from "framer-motion";
 import styled from "styled-components";
-import { makeImagePath } from "../utils";
+import { makeImagePath } from "../utils/utils";
 import { useState } from "react";
-import { IGetMoviesResult } from "../interface";
+import { IGetContentsResult } from "../interface";
 import { useNavigate } from "react-router-dom";
 
 interface ISliderProps {
-  data: IGetMoviesResult | undefined;
+  data: IGetContentsResult | undefined;
   category: string;
+  type: "Movie" | "Tv";
 }
 
 const Wrapper = styled(motion.div)`
@@ -156,7 +157,7 @@ const SliderVariants = {
 };
 const offset = 5;
 
-function SliderComponent({ data, category }: ISliderProps) {
+function SliderComponent({ data, category, type }: ISliderProps) {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
   const [isSlideBack, setSlideBack] = useState(false);
@@ -170,9 +171,9 @@ function SliderComponent({ data, category }: ISliderProps) {
   };
   const controlSlideIndex = (isSlide: boolean) => {
     if (data) {
-      const totalMovies = data?.results.length;
-      const maxIndex = Math.floor(totalMovies / offset) - 1;
-      console.log(data?.results.length, totalMovies, maxIndex);
+      const totalContents = data?.results.length;
+      const maxIndex = Math.floor(totalContents / offset) - 1;
+      console.log(data?.results.length, totalContents, maxIndex);
       if (leaving) return;
       toggleLeaving();
       moveSlide(isSlide, maxIndex);
@@ -180,8 +181,10 @@ function SliderComponent({ data, category }: ISliderProps) {
   };
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => setLeaving((prev) => !prev);
-  const onBoxClicked = (movieId: number, category: string) => {
-    navigate(`/movies/${category}/${movieId}`);
+  const onBoxClicked = (contentId: number, category: string) => {
+    type === "Movie"
+      ? navigate(`/movies/${category}/${contentId}`)
+      : navigate(`/Tv/${category}/${contentId}`);
   };
   return (
     <Wrapper>
@@ -254,19 +257,19 @@ function SliderComponent({ data, category }: ISliderProps) {
             {data?.results
               // .slice(1)
               .slice(offset * index, offset * index + offset)
-              .map((movie) => (
+              .map((content) => (
                 <Box
-                  layoutId={movie.id + category}
-                  key={movie.id}
+                  layoutId={content.id + category}
+                  key={content.id}
                   variants={BoxVariants}
                   initial="normal"
                   whileHover="hover"
                   transition={{ type: "tween" }}
-                  onClick={() => onBoxClicked(movie.id, category)}
-                  $bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
+                  onClick={() => onBoxClicked(content.id, category)}
+                  $bgPhoto={makeImagePath(content.backdrop_path, "w500")}
                 >
                   <Info variants={InfoVariants}>
-                    <h4>{movie.title}</h4>
+                    <h4>{type === "Movie" ? content.title : content.name}</h4>
                   </Info>
                 </Box>
               ))}

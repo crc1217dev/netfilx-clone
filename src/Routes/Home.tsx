@@ -1,11 +1,15 @@
 import { useQuery } from "react-query";
-import { IGetMoviesResult } from "../interface";
-import { getNowPlayMovies, getTopRatedMovies, getUpcomingMovies } from "../api";
+import { IGetContentsResult } from "../interface";
+import {
+  getNowPlayMovies,
+  getTopRatedMovies,
+  getUpcomingMovies,
+} from "../api/movieApi";
 import styled from "styled-components";
-import { makeImagePath } from "../utils";
+import { makeImagePath } from "../utils/utils";
 import { AnimatePresence } from "framer-motion";
 import { useMatch } from "react-router-dom";
-import MovieDetail from "../Components/MovieDetail";
+import ContentDetail from "../Components/ContentDetail";
 import SliderComponent from "../Components/SliderComponent";
 
 const Wrapper = styled.div`
@@ -39,7 +43,7 @@ const Title = styled.h2`
   margin-bottom: 20px;
 `;
 
-const MovieList = styled.div`
+const SlideList = styled.div`
   display: grid;
   grid-template-rows: repeat(1fr);
   position: relative;
@@ -48,16 +52,16 @@ const MovieList = styled.div`
 `;
 
 function Home() {
-  const detailMovieMatch = useMatch("/movies/:category/:movieId");
-  const topRatedMovies = useQuery<IGetMoviesResult>(
+  const detailMovieMatch = useMatch("/movies/:category/:contentId");
+  const topRatedMovies = useQuery<IGetContentsResult>(
     ["movies", "topRated"],
     () => getTopRatedMovies()
   );
-  const nowPlayMovies = useQuery<IGetMoviesResult>(
+  const nowPlayMovies = useQuery<IGetContentsResult>(
     ["movies", "nowPlaying"],
     () => getNowPlayMovies()
   );
-  const upComingMovies = useQuery<IGetMoviesResult>(
+  const upComingMovies = useQuery<IGetContentsResult>(
     ["movies", "upComing"],
     () => getUpcomingMovies()
   );
@@ -76,19 +80,32 @@ function Home() {
             <Title>{nowPlayMovies.data?.results[0].title}</Title>
             <Overview>{nowPlayMovies.data?.results[0].overview}</Overview>
           </Banner>
-          <MovieList>
+          <SlideList>
             {/* nowPlay */}
-            <SliderComponent category="nowPlay" data={nowPlayMovies.data} />
+            <SliderComponent
+              type="Movie"
+              category="nowPlay"
+              data={nowPlayMovies.data}
+            />
             {/* TopRated */}
-            <SliderComponent category="Top Rated" data={topRatedMovies.data} />
+            <SliderComponent
+              type="Movie"
+              category="Top Rated"
+              data={topRatedMovies.data}
+            />
             {/* Upcoming */}
-            <SliderComponent category="Upcoming" data={upComingMovies.data} />
-          </MovieList>
+            <SliderComponent
+              type="Movie"
+              category="Upcoming"
+              data={upComingMovies.data}
+            />
+          </SlideList>
           <AnimatePresence>
             {detailMovieMatch ? (
-              <MovieDetail
+              <ContentDetail
+                type="Movie"
                 category={detailMovieMatch.params.category || ""}
-                selectedId={detailMovieMatch.params.movieId || ""}
+                selectedId={detailMovieMatch.params.contentId || ""}
               />
             ) : null}
           </AnimatePresence>
