@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import SliderComponent from "../Components/SliderComponent";
-import { makeImagePath } from "../utils/utils";
 import { IGetContentsResult } from "../interface";
 import { useQuery } from "react-query";
 import {
@@ -11,6 +10,7 @@ import {
 import { AnimatePresence } from "framer-motion";
 import { useMatch } from "react-router-dom";
 import ContentDetail from "../Components/ContentDetail";
+import Banner from "../Components/Banner";
 
 const Wrapper = styled.div`
   background: black;
@@ -20,27 +20,6 @@ const Loader = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-`;
-
-const Banner = styled.div<{ $bgPhoto: string }>`
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 60px;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 1)),
-    url(${(props) => props.$bgPhoto});
-  background-size: cover;
-`;
-
-const Overview = styled.p`
-  font-size: 30px;
-  width: 50%;
-`;
-
-const Title = styled.h2`
-  font-size: 68px;
-  margin-bottom: 20px;
 `;
 
 const SlideList = styled.div`
@@ -72,14 +51,7 @@ function Tv() {
         <Loader>Loading...</Loader>
       ) : (
         <>
-          <Banner
-            $bgPhoto={makeImagePath(
-              topRatedTvShows.data?.results[0].backdrop_path || ""
-            )}
-          >
-            <Title>{topRatedTvShows.data?.results[0].name}</Title>
-            <Overview>{topRatedTvShows.data?.results[0].overview}</Overview>
-          </Banner>
+          <Banner contentData={topRatedTvShows.data?.results[0]!} />
           <SlideList>
             {/* TopRated */}
             <SliderComponent

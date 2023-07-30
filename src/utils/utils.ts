@@ -1,4 +1,5 @@
 export function makeImagePath(id: string, format?: string) {
+  if (!id) return "http://via.placeholder.com/376X200";
   return `https://image.tmdb.org/t/p/${format ? format : "original"}/${id}`;
 }
 export const changeDateFormat = (prevDate: Date) => {

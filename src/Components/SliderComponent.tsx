@@ -15,6 +15,8 @@ const Wrapper = styled(motion.div)`
   height: 180px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  gap: 15px;
 `;
 const SlideHeader = styled.div`
   display: flex;
@@ -22,8 +24,8 @@ const SlideHeader = styled.div`
   padding-left: 15px;
   padding-top: 15px;
   width: 100%;
-  margin-bottom: auto;
   z-index: 3;
+  order: 1;
 `;
 
 const SlideTitle = styled.h2`
@@ -35,6 +37,7 @@ const SliderWrapper = styled(motion.div)`
   display: flex;
   align-items: center;
   width: 100%;
+  order: 2;
 `;
 const PaginationIndicator = styled(motion.ul)`
   position: relative;
@@ -172,7 +175,7 @@ function SliderComponent({ data, category, type }: ISliderProps) {
   const controlSlideIndex = (isSlide: boolean) => {
     if (data) {
       const totalContents = data?.results.length;
-      const maxIndex = Math.floor(totalContents / offset) - 1;
+      const maxIndex = Math.round(totalContents / offset) - 1;
       console.log(data?.results.length, totalContents, maxIndex);
       if (leaving) return;
       toggleLeaving();
@@ -266,7 +269,10 @@ function SliderComponent({ data, category, type }: ISliderProps) {
                   whileHover="hover"
                   transition={{ type: "tween" }}
                   onClick={() => onBoxClicked(content.id, category)}
-                  $bgPhoto={makeImagePath(content.backdrop_path, "w500")}
+                  $bgPhoto={makeImagePath(
+                    content.backdrop_path ?? content.poster_path ?? "",
+                    "w500"
+                  )}
                 >
                   <Info variants={InfoVariants}>
                     <h4>{type === "Movie" ? content.title : content.name}</h4>
