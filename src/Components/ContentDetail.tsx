@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { IContentDetail, IMovieTrailer } from "../interface";
+import { IContentDetail, IContentTrailer } from "../interface/interface";
 import { getMovieDetail, getMovieTrailers } from "../api/movieApi";
 import styled from "styled-components";
 import { motion } from "framer-motion";
@@ -60,9 +60,13 @@ const Contents = styled.div`
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
 `;
 const LeftContents = styled.div`
+  min-height: 250px;
+  height: fit-content;
   padding: 12px;
 `;
 const RightContents = styled.div`
+  min-height: 250px;
+  height: fit-content;
   padding: 12px;
 `;
 
@@ -72,6 +76,10 @@ const OverView = styled.div`
 `;
 const ContentTitle = styled.span`
   color: rgba(147, 147, 147, 0.954);
+`;
+const VoteAvgDiv = styled(motion.div)`
+  width: 24px;
+  height: 24px;
 `;
 
 function ContentDetail({ selectedId, category, type }: IContentDetailProps) {
@@ -84,7 +92,7 @@ function ContentDetail({ selectedId, category, type }: IContentDetailProps) {
       ? getMovieDetail("en-US", selectedId)
       : getTvDetail("en-US", selectedId)
   );
-  const trailerResult = useQuery<IMovieTrailer>(["content", "trailer"], () =>
+  const trailerResult = useQuery<IContentTrailer>(["content", "trailer"], () =>
     type === "Movie"
       ? getMovieTrailers("en-US", selectedId)
       : getTvTrailers("en-US", selectedId)
@@ -104,7 +112,12 @@ function ContentDetail({ selectedId, category, type }: IContentDetailProps) {
       <Detail layoutId={selectedId + category}>
         {data && (
           <>
-            <Cover $bgPhoto={makeImagePath(data.backdrop_path, "w500")}>
+            <Cover
+              $bgPhoto={makeImagePath(
+                data.backdrop_path ?? data.poster_path ?? "",
+                "w500"
+              )}
+            >
               {trailer ? (
                 <iframe
                   id="player"
@@ -117,19 +130,29 @@ function ContentDetail({ selectedId, category, type }: IContentDetailProps) {
             </Cover>
             <Contents>
               <LeftContents>
-                <Title>{data.title}</Title>
+                <Title>{type === "Movie" ? data.title : data.name}</Title>
                 <OverView>{data.overview}</OverView>
               </LeftContents>
               <RightContents>
                 <OverView>
-                  <ContentTitle>Release date: </ContentTitle>
-                  {data.release_date}
+                  <ContentTitle>
+                    {type === "Movie" ? "Release date: " : "First air Date: "}
+                  </ContentTitle>
+                  {type === "Movie" ? data.release_date : data.first_air_date}
                 </OverView>
                 <OverView>
-                  <ContentTitle>Runtime: </ContentTitle>
-                  {`${Math.floor(data.runtime / 60)} hours ${
-                    data.runtime % 60
-                  } min `}
+                  {type === "Movie" ? (
+                    <>
+                      <ContentTitle>Runtime: </ContentTitle>
+                      {Math.floor(data.runtime / 60)} hours {data.runtime % 60}{" "}
+                      min
+                    </>
+                  ) : (
+                    <>
+                      <ContentTitle>Tagline: </ContentTitle>
+                      {data.tagline}
+                    </>
+                  )}
                 </OverView>
                 <OverView>
                   <ContentTitle>Genre: </ContentTitle>
@@ -142,6 +165,18 @@ function ContentDetail({ selectedId, category, type }: IContentDetailProps) {
                 <OverView>
                   <ContentTitle>status: </ContentTitle>
                   {data.status}
+                </OverView>
+                <OverView>
+                  <ContentTitle>vote count: </ContentTitle>
+                  {data.vote_count}
+                </OverView>
+                <OverView>
+                  <ContentTitle>vote average: </ContentTitle>
+                  {data.vote_average >= 0 ? (
+                    <VoteAvgDiv initial></VoteAvgDiv>
+                  ) : (
+                    0
+                  )}
                 </OverView>
               </RightContents>
             </Contents>

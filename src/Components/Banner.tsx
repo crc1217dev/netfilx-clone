@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { makeImagePath } from "../utils/utils";
-import { IContent } from "../interface";
+import { IContent } from "../interface/interface";
 
 const Wrapper = styled.div<{ $bgPhoto: string }>`
   height: 100vh;
@@ -33,7 +33,7 @@ function Banner({ contentData }: IBannerProps) {
         (contentData.backdrop_path ?? contentData.poster_path) || ""
       )}
     >
-      <Title>{contentData.title}</Title>
+      <Title>{contentData.title ?? contentData.name}</Title>
       <Overview>{contentData.overview}</Overview>
     </Wrapper>
   );

@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { IGetContentsResult } from "../interface";
+import { IGetContentsResult } from "../interface/interface";
 import {
   getNowPlayMovies,
   getTopRatedMovies,

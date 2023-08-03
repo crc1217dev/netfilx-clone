@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import styled from "styled-components";
 import { makeImagePath } from "../utils/utils";
 import { useState } from "react";
-import { IGetContentsResult } from "../interface";
+import { IGetContentsResult } from "../interface/interface";
 import { useNavigate } from "react-router-dom";
 
 interface ISliderProps {

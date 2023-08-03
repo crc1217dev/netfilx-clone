@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import SliderComponent from "../Components/SliderComponent";
-import { IGetContentsResult } from "../interface";
+import { IGetContentsResult } from "../interface/interface";
 import { useQuery } from "react-query";
 import {
   getAiringTodayTvShows,
