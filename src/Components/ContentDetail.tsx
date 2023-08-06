@@ -53,7 +53,7 @@ const Title = styled.h3`
 
 const Contents = styled.div`
   width: 100%;
-  height: 100%;
+  height: fit-content;
   position: relative;
   display: grid;
   column-gap: 2em;
@@ -72,16 +72,37 @@ const RightContents = styled.div`
 
 const OverView = styled.div`
   color: ${(props) => props.theme.white.lighter};
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 `;
 const ContentTitle = styled.span`
   color: rgba(147, 147, 147, 0.954);
 `;
-const VoteAvgDiv = styled(motion.div)`
-  width: 24px;
-  height: 24px;
+const VoteStarBase = styled.div`
+  z-index: 0;
+  padding: 0;
 `;
-
+const VoteStar = styled(motion.div)`
+  font-size: 2rem;
+  color: #aaa9a9;
+  position: relative;
+  unicode-bidi: bidi-override;
+  width: max-content;
+  -webkit-text-fill-color: transparent; /* Will override color (regardless of order) */
+  -webkit-text-stroke-width: 1.3px;
+  -webkit-text-stroke-color: #2b2a29;
+`;
+const VoteStarFilling = styled(motion.div)<{ $score: number }>`
+  color: #fff58c;
+  padding: 0;
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  width: ${(props) => props.$score + "%"};
+  -webkit-text-fill-color: gold;
+`;
 function ContentDetail({ selectedId, category, type }: IContentDetailProps) {
   const navigate = useNavigate();
 
@@ -121,8 +142,8 @@ function ContentDetail({ selectedId, category, type }: IContentDetailProps) {
               {trailer ? (
                 <iframe
                   id="player"
-                  title="test"
-                  width="1344"
+                  title="youtbePlayer"
+                  width="100%"
                   height="400"
                   src={`https://www.youtube.com/embed/${trailer.key}`}
                 ></iframe>
@@ -173,7 +194,41 @@ function ContentDetail({ selectedId, category, type }: IContentDetailProps) {
                 <OverView>
                   <ContentTitle>vote average: </ContentTitle>
                   {data.vote_average >= 0 ? (
-                    <VoteAvgDiv initial></VoteAvgDiv>
+                    <>
+                      {Math.floor(data.vote_average * 10) + "%"}
+                      <VoteStar
+                        layoutId="star"
+                        // initial={{ opacity: 0 }}
+                        // animate={{ opacity: 1 }}
+                      >
+                        <VoteStarFilling
+                          layoutId="star"
+                          initial={{
+                            opacity: 0,
+                            color: "rgba(0,0,0, 0)",
+                          }}
+                          animate={{
+                            opacity: 1,
+                            color: "rgb(255, 244, 127)",
+                          }}
+                          transition={{ duration: 1.5, delay: 1 }}
+                          $score={data.vote_average * 10 + 1.5}
+                        >
+                          <span>★</span>
+                          <span>★</span>
+                          <span>★</span>
+                          <span>★</span>
+                          <span>★</span>
+                        </VoteStarFilling>
+                        <VoteStarBase>
+                          <span>★</span>
+                          <span>★</span>
+                          <span>★</span>
+                          <span>★</span>
+                          <span>★</span>
+                        </VoteStarBase>
+                      </VoteStar>
+                    </>
                   ) : (
                     0
                   )}

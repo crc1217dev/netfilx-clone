@@ -24,7 +24,6 @@ const SlideHeader = styled.div`
   padding-left: 15px;
   padding-top: 15px;
   width: 100%;
-  z-index: 3;
   order: 1;
 `;
 
@@ -41,7 +40,6 @@ const SliderWrapper = styled(motion.div)`
 `;
 const PaginationIndicator = styled(motion.ul)`
   position: relative;
-  z-index: 3;
   margin-top: 16px;
   top: 0;
   right: 4%;
