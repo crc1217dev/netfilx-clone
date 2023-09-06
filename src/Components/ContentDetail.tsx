@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { makeImagePath } from "../utils/utils";
 import { useNavigate } from "react-router-dom";
 import { getTvDetail, getTvTrailers } from "../api/tvApi";
+import CreditSlider from "./CreditSlider";
 
 interface IContentDetailProps {
   selectedId: string;
@@ -18,13 +19,15 @@ const Detail = styled(motion.div)`
   min-width: 850px;
   width: 70vw;
   height: 90vh;
-  top: 40px;
+  top: 50px;
   left: 0;
   right: 0;
   margin: 0 auto;
   border-radius: 15px;
   overflow: hidden;
   background-color: ${(props) => props.theme.black.lighter};
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 2px 8px;
+  z-index: 2;
 `;
 const Overlay = styled(motion.div)`
   position: fixed;
@@ -33,6 +36,7 @@ const Overlay = styled(motion.div)`
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   opacity: 0;
+  z-index: 2;
 `;
 
 const Cover = styled(motion.div)<{ $bgPhoto: string }>`
@@ -56,18 +60,24 @@ const Contents = styled.div`
   height: fit-content;
   position: relative;
   display: grid;
-  column-gap: 2em;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  column-gap: 1em;
+  grid-template-columns: 1.4fr 0.6fr;
+  grid-template-rows: 1fr;
+  padding-top: 6px;
 `;
 const LeftContents = styled.div`
-  min-height: 250px;
   height: fit-content;
-  padding: 12px;
+  padding: 6px;
+  padding-left: 8px;
 `;
 const RightContents = styled.div`
-  min-height: 250px;
   height: fit-content;
-  padding: 12px;
+  padding: 6px;
+`;
+
+//w 1320; h 320;
+const BottomContents = styled.div`
+  width: 100%;
 `;
 
 const OverView = styled.div`
@@ -197,12 +207,10 @@ function ContentDetail({ selectedId, category, type }: IContentDetailProps) {
                     <>
                       {Math.floor(data.vote_average * 10) + "%"}
                       <VoteStar
-                        layoutId="star"
-                        // initial={{ opacity: 0 }}
-                        // animate={{ opacity: 1 }}
+                      // initial={{ opacity: 0 }}
+                      // animate={{ opacity: 1 }}
                       >
                         <VoteStarFilling
-                          layoutId="star"
                           initial={{
                             opacity: 0,
                             color: "rgba(0,0,0, 0)",
@@ -211,7 +219,7 @@ function ContentDetail({ selectedId, category, type }: IContentDetailProps) {
                             opacity: 1,
                             color: "rgb(255, 244, 127)",
                           }}
-                          transition={{ duration: 1.5, delay: 1 }}
+                          transition={{ duration: 1.5 }}
                           $score={data.vote_average * 10 + 1.5}
                         >
                           <span>★</span>
@@ -235,6 +243,9 @@ function ContentDetail({ selectedId, category, type }: IContentDetailProps) {
                 </OverView>
               </RightContents>
             </Contents>
+            <BottomContents>
+              <CreditSlider selectedId={selectedId} type={type} />
+            </BottomContents>
           </>
         )}
       </Detail>

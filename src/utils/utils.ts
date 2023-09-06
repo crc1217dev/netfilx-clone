@@ -7,6 +7,5 @@ export const changeDateFormat = (prevDate: Date) => {
   const month = ("0" + (prevDate.getMonth() + 1)).slice(-2);
   const day = ("0" + prevDate.getDate()).slice(-2);
   const dateStr = `${year}-${month}-${day}`;
-  console.log(dateStr);
   return dateStr;
 };

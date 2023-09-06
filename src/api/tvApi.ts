@@ -53,3 +53,14 @@ export async function getTvTrailers(language: string = "en-US", id: string) {
   );
   return await response.json();
 }
+
+export async function getTvCredits(
+  language: string = "en-US",
+  contentId: string
+) {
+  const response = await fetch(
+    `${BASE_PATH}/tv/${contentId}/credits?language=${language}`,
+    getOptions
+  );
+  return await response.json();
+}
