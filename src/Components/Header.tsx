@@ -6,12 +6,7 @@ import {
 } from "framer-motion";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import {
-  Link,
-  NavigateFunction,
-  useMatch,
-  useNavigate,
-} from "react-router-dom";
+import { Link, useLocation, useMatch, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 const Nav = styled(motion.div)`
   display: flex;
@@ -120,7 +115,8 @@ function Header() {
       : inputAnimation.start({ scaleX: 1 });
     setSearchOpen((prev) => !prev);
   };
-  const navigate: NavigateFunction = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
   const navAnimation = useAnimation();
   useMotionValueEvent(scrollY, "change", (prev) => {
     prev > 80 ? navAnimation.start("scroll") : navAnimation.start("top");

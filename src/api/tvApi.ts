@@ -64,3 +64,10 @@ export async function getTvCredits(
   );
   return await response.json();
 }
+
+export function getSearchTv(language: string = "en-US", query: string) {
+  return fetch(
+    `${BASE_PATH}/search/tv/query?=${query}language=${language}&page=1`,
+    getOptions
+  ).then((response) => response.json());
+}

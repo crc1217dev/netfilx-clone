@@ -9,6 +9,7 @@ const getOptions = {
     Authorization: `Bearer ${token_key}`,
   },
 };
+
 export function getTopRatedMovies(language: string = "en-US") {
   return fetch(
     `${BASE_PATH}/movie/top_rated?language=${language}&page=1&sort_by=popularity.desc`,
@@ -64,4 +65,11 @@ export async function getMovieCredits(
     getOptions
   );
   return await response.json();
+}
+
+export function getSearchMovies(language: string = "en-US", query: string) {
+  return fetch(
+    `${BASE_PATH}/search/movie/query?=${query}language=${language}&page=1`,
+    getOptions
+  ).then((response) => response.json());
 }
