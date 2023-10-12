@@ -33,9 +33,10 @@ export function getUpcomingMovies(language: string = "en-US") {
     )}&primary_release_date.lte=${changeDateFormat(
       lteDate
     )}&region=US&sort_by=primary_release_date.desc`,
-    // "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&primary_release_date.gte=2023-07-27&primary_release_date.lte=2023-08-31&region=US&sort_by=primary_release_date.desc",
     getOptions
-  ).then((response) => response.json());
+  ).then((response) => {
+    return response.json();
+  });
 }
 
 export async function getMovieDetail(
@@ -69,7 +70,7 @@ export async function getMovieCredits(
 
 export function getSearchMovies(language: string = "en-US", query: string) {
   return fetch(
-    `${BASE_PATH}/search/movie/query?=${query}language=${language}&page=1`,
+    `${BASE_PATH}/search/movie?query=${query}&include_adult=false&language=${language}&page=1`,
     getOptions
   ).then((response) => response.json());
 }

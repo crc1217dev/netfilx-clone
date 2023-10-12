@@ -6,7 +6,7 @@ import {
 } from "framer-motion";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useLocation, useMatch, useNavigate } from "react-router-dom";
+import { Link, useMatch, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 const Nav = styled(motion.div)`
   display: flex;
@@ -116,14 +116,22 @@ function Header() {
     setSearchOpen((prev) => !prev);
   };
   const navigate = useNavigate();
-  const location = useLocation();
   const navAnimation = useAnimation();
   useMotionValueEvent(scrollY, "change", (prev) => {
     prev > 80 ? navAnimation.start("scroll") : navAnimation.start("top");
   });
-  const { register, handleSubmit } = useForm<IForm>();
+  const { register, handleSubmit, setValue } = useForm<IForm>();
   const onValid = (data: IForm) => {
-    navigate(`/search?keyword=${data.keyword}`);
+    let category = "";
+    if (homeMatch) {
+      category = "Movie";
+    } else if (tvMatch) {
+      category = "Tv";
+    }
+    setValue("keyword", "");
+    navigate(`/search`, {
+      state: { keyword: data.keyword, category },
+    });
   };
   const navVariants = {
     top: {

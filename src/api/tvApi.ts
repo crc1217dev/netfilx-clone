@@ -67,7 +67,7 @@ export async function getTvCredits(
 
 export function getSearchTv(language: string = "en-US", query: string) {
   return fetch(
-    `${BASE_PATH}/search/tv/query?=${query}language=${language}&page=1`,
+    `${BASE_PATH}/search/tv?query=${query}&include_adult=false&language=${language}&page=1`,
     getOptions
   ).then((response) => response.json());
 }

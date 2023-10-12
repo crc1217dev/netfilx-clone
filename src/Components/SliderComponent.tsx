@@ -174,7 +174,6 @@ function SliderComponent({ data, category, type }: ISliderProps) {
     if (data) {
       const totalContents = data?.results.length;
       const maxIndex = Math.round(totalContents / offset) - 1;
-      console.log(data?.results.length, totalContents, maxIndex);
       if (leaving) return;
       toggleLeaving();
       moveSlide(isSlide, maxIndex);
