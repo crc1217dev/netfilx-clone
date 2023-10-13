@@ -5,7 +5,7 @@ import Search from "./Routes/Search";
 import Header from "./Components/Header";
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
       <Header />
       <Routes>
         <Route path="/tv" element={<Tv />}></Route>
