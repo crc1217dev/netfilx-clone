@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/netfilx-clone/static/js/main.5e593905.js",
-    "index.html": "/netfilx-clone/index.html",
-    "main.5e593905.js.map": "/netfilx-clone/static/js/main.5e593905.js.map"
+    "main.js": "/sedalix-clone/static/js/main.ab954e9e.js",
+    "index.html": "/sedalix-clone/index.html",
+    "main.ab954e9e.js.map": "/sedalix-clone/static/js/main.ab954e9e.js.map"
   },
   "entrypoints": [
-    "static/js/main.5e593905.js"
+    "static/js/main.ab954e9e.js"
   ]
 }
