@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/netfilx-clone/static/js/main.5e593905.js",
+    "index.html": "/netfilx-clone/index.html",
+    "main.5e593905.js.map": "/netfilx-clone/static/js/main.5e593905.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.5e593905.js"
+  ]
+}
